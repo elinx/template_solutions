@@ -93,6 +93,7 @@ inline std::string type_descriptor()
 /** ex2-4 type decriptor
  */
 // basic type can be identified
+#if 0
 template<typename T>
 struct basic_type{
 	static const std::string value;
@@ -155,7 +156,7 @@ struct type_desriptor{
 
 template<typename T>
 struct type_desriptor<T*>{
-	operator std::string(){ 
+	operator std::string(){
 		std::string str =  type_desriptor<T>();
 		str += " *";
 		return str;
@@ -179,3 +180,164 @@ struct type_desriptor<T[]>{
 		return str;
 	}
 };
+
+// Match to normal function pointer(parameter is empty)
+// Result is the return type of the function
+// T is the function pointer type
+// eg: typedef int (*func[10])(void)
+// Result : int, T: *[]
+#if 0
+template<typename Result, typename T>
+struct type_desriptor<Result, T>{
+	typedef Result (*FuncPtr)();
+	operator std::string(){
+		std::string str = type_desriptor<FuncPtr>();
+		str += type_desriptor<T>();
+		str += "()";
+		return str;
+	}
+};
+#endif
+#endif
+
+/**ex2-5 return type with description
+ */
+template<typename T>
+struct basic_type{
+	static const std::string value;
+};
+template<typename T>
+const std::string basic_type<T>::value = "Unknown";
+
+template<>
+struct basic_type<int>{
+	static const std::string value;
+};
+//template<>
+const std::string basic_type<int>::value = "int";
+
+template<>
+struct basic_type<char>{
+	static const std::string value;
+};
+const std::string basic_type<char>::value  = "char";
+
+template<>
+struct basic_type<short int>{
+	static const std::string value;
+};
+const std::string basic_type<short int>::value = "short int";
+
+template<>
+struct basic_type<long int>{
+	static const std::string value;
+};
+const std::string basic_type<long int>::value = "long int";
+// End basic type
+
+/** Main template
+ */
+template<typename T>
+struct type_desriptor{
+	operator std::string(){
+		return basic_type<T>::value;
+	}
+};
+
+template<typename T>
+struct type_desriptor<T*>{
+	operator std::string(){
+		std::string str =  type_desriptor<T>();
+		str = "pointer to " + str;
+		return str;
+	}
+};
+
+template<typename T>
+struct type_desriptor<T&>{
+	operator std::string(){
+		std::string str = type_desriptor<T>();
+		str = "reference to " + str;
+		return str;
+	}
+};
+
+template<typename T>
+struct type_desriptor<T[]>{
+	operator std::string(){
+		std::string str = type_desriptor<T>();
+		str = "array of " + str;
+		return str;
+	}
+};
+// match function with return type T
+template<typename T>
+struct type_desriptor<T()>{
+	operator std::string(){
+		std::string str = type_desriptor<T>();
+		str = "function returning " + str;
+		return str;
+	}
+};
+
+// match basic function pointer(with parameter empty)
+template<typename T>
+struct type_desriptor<T(*)()>{
+	operator std::string(){
+		std::string str = type_desriptor<T>();
+		str = "pointer to function returning " + str;
+		return str;
+	}
+};
+// Match to complicated function pointer(with parameter empty)
+// Result is the return type of the function
+// T is the function pointer type
+// eg: typedef int (*func[10])(void)
+// Result : int, T: *[]
+#if 0
+template<typename Result, typename T>
+struct type_desriptor<Result(T*)()>{
+	operator std::string(){
+		std::string str = type_desriptor<FuncPtr>();
+		str += type_desriptor<T>();
+		str += "()";
+		return str;
+	}
+};
+#endif
+
+/** ex2-6 type category
+ */
+
+// match signed char
+template<typename T>
+struct is_char
+	: std::false_type
+{
+};
+template<>
+struct is_char<char>
+	: std::true_type
+{
+};
+template<>
+struct is_char<signed char>
+	: std::true_type
+{
+};
+
+// match unsigned char
+template<typename T>
+// match char
+struct is_unsigned_char
+	: std::false_type
+{
+};
+template<>
+struct is_unsigned_char<unsigned char>
+	: std::true_type
+{
+};
+// signed int, unsigned int, long, long int, long long....etc.
+/** ex2-7
+ */

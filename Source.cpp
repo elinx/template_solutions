@@ -92,6 +92,7 @@ CTemplateA<10> a;
 
 int main()
 {
+#if 0
 	vector<int> v;
 	v.push_back(2);
 	v.push_back(3);
@@ -124,12 +125,29 @@ int main()
 	A& a_ref = b;
 	B& b_ref = ::polymorphic_downcast<B&>(a_ref);
 
-	/* test cases for ex2-3 */
+	/* test cases for ex2-3,4,5 */
 	std::string tt = type_desriptor<int>();
 	tt = type_desriptor<int*>();
 	tt = type_desriptor<long int*>();
 	tt = type_desriptor<long int*[]>();
-	tt = type_desriptor<unsigned int>(); // unknown
+	tt = type_desriptor<unsigned int>();	// unknown
+	tt = type_desriptor<int(*)()>();		// pointer to function returning int
+	tt = type_desriptor<int*()>();			// function returning pointer which point to int
+	tt = type_desriptor<char * (*[])()>();	// error "char *() *[]", [] --> function pointer
+	// array of pointer to function returning pointer to char
+#endif
+	/* test cases for ex2-6 */
+
+	bool res = std::is_array<char[]>::value;
+	
+	res = is_char<int>::value;							// false
+	res = is_char<char>::value;							// true
+	res = is_char<signed char>::value;					// true
+	res = is_char<unsigned char>::value;				// false
+
+	res = is_unsigned_char<unsigned char>::value;		// true
+	res = is_unsigned_char<char>::value;				// false
+
 
 	std::cout << a.str;// output late bind?
 	return 0;
